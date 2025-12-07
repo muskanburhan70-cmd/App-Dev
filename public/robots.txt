@@ -1,0 +1,19 @@
+# robots.txt for Bareera International HR Management System
+# Allow all search engines to crawl the site
+
+User-agent: *
+Allow: /
+
+# Disallow private/sensitive areas
+Disallow: /dashboard
+Disallow: /employee
+Disallow: /attendance
+Disallow: /payroll
+Disallow: /performance
+Disallow: /employee-portal
+
+# Allow homepage for SEO
+Allow: /$
+
+# Sitemap location
+Sitemap: https://bareera-international.com/sitemap.xml
