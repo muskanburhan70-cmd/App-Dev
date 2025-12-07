@@ -1,0 +1,135 @@
+.card {
+  flex: 1;
+  min-width: 220px;
+  max-width: 400px;
+  padding: 25px;
+  background-color: #c06b7e;
+  border-radius: 12px;
+  text-align: center;
+  color: white;
+  box-sizing: border-box;
+  position: relative;
+  transition: transform 0.3s, box-shadow 0.3s, background-color 0.3s;
+  animation: cardSlideIn 0.5s ease-out;
+}
+
+.card.clickable {
+  cursor: pointer;
+}
+
+.card.clickable:hover {
+  transform: translateY(-5px) scale(1.02);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+  background-color: #b45074;
+}
+
+.card.clickable:active {
+  transform: translateY(-2px) scale(1);
+}
+
+.card.alert-card {
+  background: linear-gradient(135deg, #ec407a, #d81b60);
+  animation: pulse 2s infinite;
+}
+
+.card-icon {
+  margin-bottom: 15px;
+  font-size: 40px;
+  animation: iconBounce 0.6s ease-out;
+}
+
+.card-title {
+  margin-top: 12px;
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+
+.card-value {
+  margin-top: 4px;
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 5px;
+}
+
+.card-trend {
+  display: inline-block;
+  background: rgba(255, 255, 255, 0.3);
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-top: 8px;
+}
+
+.alert-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: #ff1744;
+  color: white;
+  width: 25px;
+  height: 25px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: bold;
+  font-size: 16px;
+  animation: alertPulse 1.5s infinite;
+}
+
+/* Animations */
+@keyframes cardSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes iconBounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(236, 64, 122, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 10px rgba(236, 64, 122, 0);
+  }
+}
+
+@keyframes alertPulse {
+  0%, 100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.2);
+  }
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .card {
+    width: 100%;
+    max-width: 100%;
+  }
+
+  .card-value {
+    font-size: 28px;
+  }
+
+  .card-icon {
+    font-size: 35px;
+  }
+}

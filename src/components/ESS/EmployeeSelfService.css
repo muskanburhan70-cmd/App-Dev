@@ -1,0 +1,38 @@
+.ess-container {
+  background: #fadada;
+  min-height: 90vh;
+  padding: 50px 40px;
+}
+
+.ess-title {
+  font-size: 48px;
+  font-weight: 800;
+  color: #b3476b;
+  margin-bottom: 60px;
+}
+
+/* Grid for 4 buttons */
+.ess-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 350px);
+  justify-content: center;
+  gap: 40px;
+}
+
+/* Buttons */
+.ess-btn {
+  background: white;
+  font-size: 22px;
+  font-weight: bold;
+  padding: 20px 25px;
+  border-radius: 20px;
+  border: 3px solid #000;
+  cursor: pointer;
+  transition: 0.2s;
+  box-shadow: 6px 8px 0px #000;
+}
+
+.ess-btn:hover {
+  transform: translateY(-3px);
+  box-shadow: 10px 12px 0px #000;
+}
