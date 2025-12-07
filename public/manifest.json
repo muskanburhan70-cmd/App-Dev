@@ -1,0 +1,20 @@
+{
+  "name": "Bareera International - HR Management System",
+  "short_name": "Bareera HR",
+  "description": "Comprehensive HR Management System for employee, attendance, payroll, and performance management",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#ffffff",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/vite.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "lang": "en-US"
+}
