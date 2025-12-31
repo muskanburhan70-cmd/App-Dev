@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Routes, Route, Navigate, BrowserRouter } from "react-router-dom";
 import Navbar from "./components/Navbar/Navbar";
 import Dashboard from "./components/Dashboard/Dashboard";
@@ -9,17 +9,49 @@ import PayrollPage from "./components/Payroll/PayrollPage";
 import PerformancePage from "./components/Performance/PerformancePage";
 import EmployeePortal from "./components/EmployeePortal/EmployeePortal";
 import bgImage from "./assets/your-image.png";
+import { authService } from "./appwrite";
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  // Check if user is already logged in on app load
+  useEffect(() => {
+    checkAuth();
+  }, []);
+
+  const checkAuth = async () => {
+    try {
+      const loggedIn = await authService.isLoggedIn();
+      setIsLoggedIn(loggedIn);
+    } catch (error) {
+      console.error("Auth check error:", error);
+      setIsLoggedIn(false);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleLogin = () => {
     setIsLoggedIn(true);
   };
 
-  const handleLogout = () => {
-    setIsLoggedIn(false);
+  const handleLogout = async () => {
+    try {
+      await authService.logout();
+      setIsLoggedIn(false);
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
   };
+
+  if (loading) {
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "100vh" }}>
+        <h2>Loading...</h2>
+      </div>
+    );
+  }
 
   return (
     <BrowserRouter>

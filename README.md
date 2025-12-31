@@ -14,3 +14,72 @@ The React Compiler is not enabled on this template because of its impact on dev 
 ## Expanding the ESLint configuration
 
 If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+
+```
+bareera-hr-login
+├─ README.md
+├─ eslint.config.js
+├─ index.html
+├─ jsconfig.json
+├─ new folder
+├─ package-lock.json
+├─ package.json
+├─ public
+│  └─ vite.svg
+├─ src
+│  ├─ App.css
+│  ├─ App.jsx
+│  ├─ Pages
+│  │  ├─ AttendancePage.jsx
+│  │  ├─ EmployeePortal.jsx
+│  │  └─ EssPage.jsx
+│  ├─ assets
+│  │  ├─ pinkbg.jpg
+│  │  ├─ react.svg
+│  │  └─ your-image.png
+│  ├─ components
+│  │  ├─ Attendance
+│  │  │  ├─ AttendancePage.css
+│  │  │  └─ AttendancePage.jsx
+│  │  ├─ AttendanceTable.jsx
+│  │  ├─ Dashboard
+│  │  │  ├─ Dashboard.css
+│  │  │  └─ Dashboard.jsx
+│  │  ├─ DashboardCard
+│  │  │  ├─ DashboardCard.css
+│  │  │  └─ DashboardCard.jsx
+│  │  ├─ DateFilter.jsx
+│  │  ├─ ESS
+│  │  │  ├─ EmployeeSelfService.css
+│  │  │  └─ EmployeeSelfService.jsx
+│  │  ├─ Employee
+│  │  │  ├─ EmployeePage.css
+│  │  │  └─ EmployeePage.jsx
+│  │  ├─ EmployeePortal
+│  │  │  ├─ EmployeePortal.css
+│  │  │  └─ EmployeePortal.jsx
+│  │  ├─ ExportCSV.js
+│  │  ├─ HomePage.jsx
+│  │  ├─ Modal.jsx
+│  │  ├─ Model.jsx
+│  │  ├─ Navbar
+│  │  │  ├─ Navbar.css
+│  │  │  └─ Navbar.jsx
+│  │  ├─ Payroll
+│  │  │  ├─ PayrollPage.css
+│  │  │  └─ PayrollPage.jsx
+│  │  ├─ Payslips
+│  │  │  ├─ Payslip.css
+│  │  │  ├─ PayslipRow.jsx
+│  │  │  └─ PayslipTable.jsx
+│  │  ├─ Performance
+│  │  │  ├─ PerformanceButtons.jsx
+│  │  │  ├─ PerformancePage.jsx
+│  │  │  ├─ PerformanceTable.jsx
+│  │  │  └─ performance.css
+│  │  └─ homepage.css
+│  ├─ index.css
+│  └─ main.jsx
+└─ vite.config.js
+
+```

@@ -1,15 +1,9 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./EmployeePage.css";
-
-const seedEmployees = [
-  { id: "001", name: "Maria", department: "HR", status: "Active", uid: "EMP-001", email: "maria@bareera.com", phone: "+92 300 1234567", joinDate: "2023-01-15" },
-  { id: "002", name: "Maryam", department: "Finance", status: "Active", uid: "EMP-002", email: "maryam@bareera.com", phone: "+92 300 2234567", joinDate: "2023-02-20" },
-  { id: "003", name: "Ali Khan", department: "IT", status: "Active", uid: "EMP-003", email: "ali@bareera.com", phone: "+92 300 3234567", joinDate: "2023-03-10" },
-  { id: "004", name: "Hassan", department: "Marketing", status: "Inactive", uid: "EMP-004", email: "hassan@bareera.com", phone: "+92 300 4234567", joinDate: "2023-04-05" },
-];
+import { employeeService } from "../../appwrite";
 
 function EmployeePage() {
-  const [employees, setEmployees] = useState(seedEmployees);
+  const [employees, setEmployees] = useState([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [filterDepartment, setFilterDepartment] = useState("");
   const [filterStatus, setFilterStatus] = useState("");
@@ -23,6 +17,25 @@ function EmployeePage() {
     phone: "",
     joinDate: "",
   });
+
+  const loadEmployees = async () => {
+    try {
+      const data = await employeeService.getEmployees();
+      setEmployees(data);
+    } catch (error) {
+      console.error("Failed to load employees:", error);
+      alert("Failed to load employees. Please try again.");
+    }
+  };
+
+  // Load employees from Appwrite on component mount
+  useEffect(() => {
+    const fetchEmployees = async () => {
+      await loadEmployees();
+    };
+    fetchEmployees();
+  }, []);
+
   // Compute stats directly from employees to avoid unnecessary state and effects
   const stats = {
     total: employees.length,
@@ -69,36 +82,48 @@ function EmployeePage() {
     setShowModal(true);
   };
 
-  const handleDelete = (uid) => {
+  const handleDelete = async (uid) => {
     if (window.confirm("Are you sure you want to delete this employee?")) {
-      setEmployees((prev) => prev.filter((emp) => emp.uid !== uid));
+      try {
+        // Find employee by uid to get the document $id
+        const employee = employees.find((emp) => emp.uid === uid);
+        if (employee && employee.$id) {
+          await employeeService.deleteEmployee(employee.$id);
+          await loadEmployees(); // Reload to ensure sync
+        }
+      } catch (error) {
+        console.error("Failed to delete employee:", error);
+        alert("Failed to delete employee. Please try again.");
+      }
     }
   };
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!formData.name || !formData.department || !formData.email) {
       alert("Please fill in all required fields");
       return;
     }
 
-    if (editingEmployee) {
-      // Update existing employee
-      setEmployees((prev) =>
-        prev.map((e) =>
-          e.uid === editingEmployee.uid
-            ? { ...e, ...formData }
-            : e
-        )
-      );
-    } else {
-      // Add new employee
-      const nextNum = employees.length ? Math.max(...employees.map((e) => Number(e.id))) + 1 : 1;
-      const id = String(nextNum).padStart(3, "0");
-      const uid = `EMP-${id}`;
-      setEmployees((prev) => [...prev, { id, uid, ...formData }]);
-    }
+    try {
+      if (editingEmployee) {
+        // Update existing employee
+        await employeeService.updateEmployee(editingEmployee.$id, formData);
+      } else {
+        // Add new employee - generate uid
+        const nextNum = employees.length ? Math.max(...employees.map((e) => {
+          const match = e.uid?.match(/\d+$/);
+          return match ? Number(match[0]) : 0;
+        })) + 1 : 1;
+        const uid = `EMP-${String(nextNum).padStart(3, "0")}`;
+        await employeeService.createEmployee({ ...formData, uid });
+      }
 
-    setShowModal(false);
+      await loadEmployees(); // Reload to ensure sync
+      setShowModal(false);
+    } catch (error) {
+      console.error("Failed to save employee:", error);
+      alert("Failed to save employee. Please try again.");
+    }
   };
 
   const handleChange = (e) => {

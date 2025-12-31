@@ -1,52 +1,26 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import DateFilter from "../components/DateFilter";
 import AttendanceTable from "../components/AttendanceTable";
 import { exportToCSV } from "../components/ExportCSV";
+import { attendanceService } from "../appwrite";
 
 const AttendancePage = () => {
   const [selectedDate, setSelectedDate] = useState("");
-  const [records, setRecords] = useState([
-    {
-      uid: "001",
-      name: "Ayesha",
-      status: "Present",
-      inTime: "9:00",
-      outTime: "17:00",
-      date: "2025-12-01",
-    },
-    {
-      uid: "002",
-      name: "Maria",
-      status: "Absent",
-      inTime: "",
-      outTime: "",
-      date: "2025-12-01",
-    },
-    {
-      uid: "003",
-      name: "Maryam",
-      status: "Present",
-      inTime: "9:00",
-      outTime: "16:30",
-      date: "2025-12-01",
-    },
-    {
-      uid: "004",
-      name: "Ali Khan",
-      status: "Present",
-      inTime: "8:45",
-      outTime: "17:15",
-      date: "2025-12-02",
-    },
-    {
-      uid: "005",
-      name: "Hassan",
-      status: "Late",
-      inTime: "9:45",
-      outTime: "17:00",
-      date: "2025-12-02",
-    },
-  ]);
+  const [records, setRecords] = useState([]);
+
+  // Load attendance from Appwrite on component mount
+  useEffect(() => {
+    const loadAttendance = async () => {
+      try {
+        const data = await attendanceService.getAttendance(selectedDate || undefined);
+        setRecords(data);
+      } catch (error) {
+        console.error("Failed to load attendance:", error);
+        alert("Failed to load attendance. Please try again.");
+      }
+    };
+    loadAttendance();
+  }, [selectedDate]);
 
   const filteredRecords =
     selectedDate === ""
@@ -65,19 +39,24 @@ const AttendancePage = () => {
     alert("Attendance has been saved successfully!");
   };
 
-  const handleMarkAttendance = (uid, newStatus) => {
-    setRecords((prev) =>
-      prev.map((r) =>
-        r.uid === uid
-          ? {
-              ...r,
-              status: newStatus,
-              inTime: newStatus !== "Absent" ? r.inTime || "9:00" : "",
-              outTime: newStatus !== "Absent" ? r.outTime || "17:00" : "",
-            }
-          : r
-      )
-    );
+  const handleMarkAttendance = async (uid, newStatus) => {
+    try {
+      // Find record by uid to get the document $id
+      const record = records.find((r) => r.uid === uid);
+      if (record && record.$id) {
+        await attendanceService.updateAttendance(record.$id, {
+          status: newStatus,
+          inTime: newStatus !== "Absent" ? record.inTime || "9:00" : "",
+          outTime: newStatus !== "Absent" ? record.outTime || "17:00" : "",
+        });
+        // Reload the data
+        const data = await attendanceService.getAttendance(selectedDate || undefined);
+        setRecords(data);
+      }
+    } catch (error) {
+      console.error("Failed to update attendance:", error);
+      alert("Failed to update attendance. Please try again.");
+    }
   };
 
   const handleAddRecord = () => {

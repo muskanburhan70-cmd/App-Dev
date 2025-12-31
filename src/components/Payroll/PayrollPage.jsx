@@ -1,23 +1,35 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import "./PayrollPage.css";
+import { payrollService } from "../../appwrite";
 
 export default function PayrollPage() {
-  const [payslips, setPayslips] = useState([
-    { id: "P001", name: "Maria", month: "Nov 2025", basicSalary: 2000, bonus: 500, deductions: 0, net: 2500 },
-    { id: "P002", name: "Ali Khan", month: "Nov 2025", basicSalary: 1700, bonus: 200, deductions: 0, net: 1900 },
-    { id: "P003", name: "Maryam", month: "Nov 2025", basicSalary: 2000, bonus: 200, deductions: 0, net: 2200 },
-  ]);
-
+  const [payslips, setPayslips] = useState([]);
   const [showModal, setShowModal] = useState(false);
   const [editingPayslip, setEditingPayslip] = useState(null);
   const [formData, setFormData] = useState({
-    id: "",
-    name: "",
+    employeeName: "",
     month: "",
     basicSalary: 0,
     bonus: 0,
     deductions: 0,
   });
+
+  const loadPayrolls = async () => {
+    try {
+      const data = await payrollService.getPayrolls();
+      console.log("Loaded payrolls:", data);
+      setPayslips(data);
+    } catch (error) {
+      console.error("Failed to load payrolls:", error);
+      console.error("Error details:", error.message, error.code);
+      alert(`Failed to load payrolls: ${error.message}`);
+    }
+  };
+
+  // Load payrolls from Appwrite on component mount
+  useEffect(() => {
+    loadPayrolls();
+  }, []);
 
   const calculateNet = (basic, bonus, deductions) => {
     return parseFloat(basic) + parseFloat(bonus) - parseFloat(deductions);
@@ -26,8 +38,7 @@ export default function PayrollPage() {
   const handleAdd = () => {
     setEditingPayslip(null);
     setFormData({
-      id: `P${String(payslips.length + 1).padStart(3, "0")}`,
-      name: "",
+      employeeName: "",
       month: "",
       basicSalary: 0,
       bonus: 0,
@@ -37,10 +48,9 @@ export default function PayrollPage() {
   };
 
   const handleEdit = (payslip) => {
-    setEditingPayslip(payslip.id);
+    setEditingPayslip(payslip);
     setFormData({
-      id: payslip.id,
-      name: payslip.name,
+      employeeName: payslip.employeeName,
       month: payslip.month,
       basicSalary: payslip.basicSalary,
       bonus: payslip.bonus,
@@ -49,40 +59,48 @@ export default function PayrollPage() {
     setShowModal(true);
   };
 
-  const handleDelete = (id) => {
+  const handleDelete = async (id) => {
     if (window.confirm("Are you sure you want to delete this payslip?")) {
-      setPayslips(payslips.filter((p) => p.id !== id));
+      try {
+        await payrollService.deletePayroll(id);
+        await loadPayrolls(); // Reload to ensure sync
+      } catch (error) {
+        console.error("Failed to delete payslip:", error);
+        alert("Failed to delete payslip. Please try again.");
+      }
     }
   };
 
-  const handleSave = () => {
-    const net = calculateNet(formData.basicSalary, formData.bonus, formData.deductions);
-    
-    if (!formData.name || !formData.month) {
+  const handleSave = async () => {
+    if (!formData.employeeName || !formData.month) {
       alert("Please fill in all required fields");
       return;
     }
 
-    if (editingPayslip) {
-      setPayslips(
-        payslips.map((p) =>
-          p.id === editingPayslip
-            ? { ...formData, net }
-            : p
-        )
-      );
-    } else {
-      setPayslips([...payslips, { ...formData, net }]);
+    try {
+      console.log("Saving payroll:", formData);
+      if (editingPayslip) {
+        const result = await payrollService.updatePayroll(editingPayslip.$id, formData);
+        console.log("Update result:", result);
+      } else {
+        const result = await payrollService.createPayroll(formData);
+        console.log("Create result:", result);
+      }
+      
+      await loadPayrolls(); // Reload to ensure sync
+      setShowModal(false);
+    } catch (error) {
+      console.error("Failed to save payslip:", error);
+      console.error("Error details:", error.message, error.code);
+      alert(`Failed to save payslip: ${error.message}`);
     }
-    
-    setShowModal(false);
   };
 
   const handleChange = (e) => {
     const { name, value } = e.target;
     setFormData((prev) => ({
       ...prev,
-      [name]: name === "name" || name === "month" ? value : parseFloat(value) || 0,
+      [name]: name === "employeeName" || name === "month" ? value : parseFloat(value) || 0,
     }));
   };
 
@@ -111,19 +129,19 @@ export default function PayrollPage() {
           </thead>
           <tbody>
             {payslips.map((p) => (
-              <tr key={p.id}>
-                <td>{p.id}</td>
-                <td>{p.name}</td>
+              <tr key={p.$id}>
+                <td>{p.$id?.substring(0, 8) || 'N/A'}</td>
+                <td>{p.employeeName}</td>
                 <td>{p.month}</td>
-                <td>${p.basicSalary.toLocaleString()}</td>
-                <td>${p.bonus.toLocaleString()}</td>
-                <td>${p.deductions.toLocaleString()}</td>
-                <td className="net">${p.net.toLocaleString()}</td>
+                <td>${p.basicSalary?.toLocaleString() || 0}</td>
+                <td>${p.bonus?.toLocaleString() || 0}</td>
+                <td>${p.deductions?.toLocaleString() || 0}</td>
+                <td className="net">${p.netSalary?.toLocaleString() || 0}</td>
                 <td>
                   <button className="btn-edit" onClick={() => handleEdit(p)}>
                     ✏️
                   </button>
-                  <button className="btn-delete" onClick={() => handleDelete(p.id)}>
+                  <button className="btn-delete" onClick={() => handleDelete(p.$id)}>
                     🗑️
                   </button>
                 </td>
@@ -142,8 +160,8 @@ export default function PayrollPage() {
               <label>Employee Name *</label>
               <input
                 type="text"
-                name="name"
-                value={formData.name}
+                name="employeeName"
+                value={formData.employeeName}
                 onChange={handleChange}
                 placeholder="Enter employee name"
               />
